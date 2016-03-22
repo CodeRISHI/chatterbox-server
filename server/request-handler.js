@@ -59,7 +59,7 @@ var requestHandler = function(request, response) {
   //
   // You will need to change this if you are sending something
   // other than plain text, like JSON or HTML.
-  headers['Content-Type'] = 'text/plain';
+  headers['Content-Type'] = 'application/json';
 
   
   if (request.method === 'GET') {
@@ -70,10 +70,9 @@ var requestHandler = function(request, response) {
 
       response.end();
     } else {
-      // .writeHead() writes to the request line and headers of the response,
-      // which includes the status and all headers.
       response.writeHead(statusCode, headers);
-     
+
+      console.log('*******RESULTS (GET)**********', results);
       response.end(JSON.stringify({
         results: results
       }));
@@ -81,20 +80,16 @@ var requestHandler = function(request, response) {
     return;
   } else if (request.method === 'POST') {
     // The outgoing status.
-    statusCode = 201;
-    // var requestProcessed = false;
-    // // .writeHead() writes to the request line and headers of the response,
-    // // which includes the status and all headers.
-    response.writeHead(statusCode, headers);
+    statusCode = response._responseCode = 201;
 
-    // if (request._postData.message && !requestProcessed) {
-    //   results.push(request._postData.message);
-    //   requestProcessed = true;  
-    // }
-    
-    // console.log('*******LMAO*********' + results + '****************');
-    
-    response.end();
+    request.on('data', function(chunk) {
+      results.push(JSON.parse(chunk));
+    });
+
+    request.on('end', function() {
+      response.writeHead(statusCode, headers);
+      response.end(JSON.stringify(results));
+    });
     return;
   }
 
