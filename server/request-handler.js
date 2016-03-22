@@ -29,6 +29,9 @@ var defaultCorsHeaders = {
   'access-control-max-age': 10 // Seconds.
 };
 
+//global results array
+var results = [];
+
 var requestHandler = function(request, response) {
   // Request and Response come from node's http module.
   //
@@ -46,13 +49,11 @@ var requestHandler = function(request, response) {
   // console.logs in your code.
   console.log('Serving request type ' + request.method + ' for url ' + request.url);
 
-
-  // console.log('**************REQUEST******', request);
-  // The outgoing status.
-  var statusCode = 200;
-
   // See the note below about CORS headers.
   var headers = defaultCorsHeaders;
+
+  // The outgoing status.
+  var statusCode = null;
 
   // Tell the client we are sending them plain text.
   //
@@ -60,16 +61,42 @@ var requestHandler = function(request, response) {
   // other than plain text, like JSON or HTML.
   headers['Content-Type'] = 'text/plain';
 
-  // .writeHead() writes to the request line and headers of the response,
-  // which includes the status and all headers.
-  response.writeHead(statusCode, headers);
-  console.log('************************************', response);
   
   if (request.method === 'GET') {
-    response.end(JSON.stringify({
-      results: []
-    }));
-  } 
+    statusCode = response._responseCode = 200;
+    if (request.url !== '/classes/messages') {
+      statusCode = response._responseCode = 404;
+      response.writeHead(statusCode, headers);
+
+      response.end();
+    } else {
+      // .writeHead() writes to the request line and headers of the response,
+      // which includes the status and all headers.
+      response.writeHead(statusCode, headers);
+     
+      response.end(JSON.stringify({
+        results: results
+      }));
+    }
+    return;
+  } else if (request.method === 'POST') {
+    // The outgoing status.
+    statusCode = 201;
+    // var requestProcessed = false;
+    // // .writeHead() writes to the request line and headers of the response,
+    // // which includes the status and all headers.
+    response.writeHead(statusCode, headers);
+
+    // if (request._postData.message && !requestProcessed) {
+    //   results.push(request._postData.message);
+    //   requestProcessed = true;  
+    // }
+    
+    // console.log('*******LMAO*********' + results + '****************');
+    
+    response.end();
+    return;
+  }
 
   // Make sure to always call response.end() - Node may not send
   // anything back to the client until you do. The string you pass to
