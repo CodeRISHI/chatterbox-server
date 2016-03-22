@@ -61,8 +61,17 @@ var requestHandler = function(request, response) {
   // other than plain text, like JSON or HTML.
   headers['Content-Type'] = 'application/json';
 
+  //OPTIONS HANDLING
+  if (request.method === 'OPTIONS') {
+    statusCode = response._responseCode = 200;
+    console.log('Wheeeeeeee! You made it!');
+    response.writeHead(statusCode, headers);
+    response.end();
+  }
+
   
   if (request.method === 'GET') {
+    console.log('GET - is here');
     statusCode = response._responseCode = 200;
     if (request.url !== '/classes/messages') {
       statusCode = response._responseCode = 404;
@@ -79,6 +88,7 @@ var requestHandler = function(request, response) {
     }
     return;
   } else if (request.method === 'POST') {
+    console.log('POST - is here');
     // The outgoing status.
     statusCode = response._responseCode = 201;
 

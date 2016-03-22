@@ -25,8 +25,8 @@ var app = {
     app.$send.on('submit', app.handleSubmit);
     app.$roomSelect.on('change', app.saveRoom);
 
-    // Fetch previous messages
-    app.startSpinner();
+    // // Fetch previous messages
+    // app.startSpinner();
     app.fetch(false);
 
     // Poll for new messages
@@ -59,8 +59,7 @@ var app = {
       url: app.server,
       type: 'GET',
       contentType: 'application/json',
-      data: { order: '-createdAt'},
-      success: function(data) {
+      success: function(data) {        
         // Don't bother if we have nothing to work with
         if (!data.results || !data.results.length) { return; }
 
@@ -68,6 +67,7 @@ var app = {
         var mostRecentMessage = data.results[data.results.length - 1];
         var displayedRoom = $('.chat span').first().data('roomname');
         app.stopSpinner();
+
         // Only bother updating the DOM if we have a new message
         if (mostRecentMessage.objectId !== app.lastMessageId || app.roomname !== displayedRoom) {
           // Update the UI with the fetched rooms
@@ -219,6 +219,9 @@ var app = {
     };
 
     app.send(message);
+    app.populateMessages();
+
+    console.log(message);
 
     // Stop the form from submitting
     evt.preventDefault();
@@ -234,4 +237,8 @@ var app = {
     $('form input[type=submit]').attr('disabled', null);
   }
 };
+
+$(document).ready(function () {
+  app.init();
+});
 
